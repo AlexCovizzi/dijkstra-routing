@@ -1,22 +1,40 @@
 import java.util.Scanner;
 import java.util.Arrays;
 
-public class Main {
+public class DijkstraRouting {
 	public static int INF = 20000000;
 	public static Scanner scanner = new Scanner( System.in );
+	public static final int[][] TEST = {{0, 2, INF, 1, 5, INF},
+										{2, 0, 4, INF, 3, INF},
+										{INF, 4, 0, INF, 3, 2},
+										{1, INF, INF, 0, 2, 2},
+										{5, 3, 3, 2, 0, INF},
+										{INF, INF, 2, 2, INF, 0}};
 
 	public static void main(String[] args) {
 		int number_nodes = -1;
-		while(number_nodes < 2) {
-			number_nodes = getIntFromConsole("Numero di nodi (deve essere >= 2): ");
-		}
+		int[][] connections;
 
-		int[][] connections = generateConnections(number_nodes);
+		System.out.println("Usare la rete test? [s/n]:");
+		String s = scanner.nextLine();
+
+		if(s.equals("s")) {
+			number_nodes = TEST.length;
+			connections = TEST;
+		}else{
+			while(number_nodes < 2) {
+				number_nodes = getIntFromConsole("Numero di nodi (deve essere >= 2): ");
+			}
+			connections = generateConnections(number_nodes);
+		}
+		System.out.print("\n");
 		for(int i=0; i<connections.length; i++) System.out.println(arrToString(connections[i], false));
+		System.out.print("\n");
 
 		int center = -1;
 		while(center < 1 || center > number_nodes) {
 			center = getIntFromConsole("Nodo di riferimento (deve essere compreso tra 1 e "+number_nodes+"): ");
+			System.out.print("\n");
 		}
 		center--;
 
@@ -57,21 +75,22 @@ public class Main {
 		int[] seq = new int[l];
 		Arrays.fill(seq, INF);
 		seq[0] = center;
-		//System.out.print("F = "+arrToString(seq, true)+" | ");
+
+		System.out.print("F = "+arrToString(seq, true)+" | ");
+		System.out.print(arrToString(dists_to_center, false));
+		System.out.print("\n");
 
 		for(int i=0; i<l-1; i++) {
+
 			int min_dist = INF;
 			int node_min_dist = -1;
 
 			for(int j=0; j<l; j++) {
 				if(!isInArray(j, seq)) {
-					//System.out.print(intToString(connections[center][j], false) + "  ");
 					if(dists_to_center[j] < min_dist) {
 						node_min_dist = j;
 						min_dist = dists_to_center[j];
 					}
-				}else{
-					//System.out.print("//  ");
 				}
 			}
 
@@ -79,9 +98,9 @@ public class Main {
 
 			for(int j=0; j<l; j++) {
 				if(!isInArray(j, seq)) {
-					if(dists_to_center[j] > connections[i+1][j]+dists_to_center[i+1]) {
-						dists_to_center[j] = connections[i+1][j]+dists_to_center[i+1];
-						connections_aux[j] = i+1;
+					if(dists_to_center[j] > connections[seq[i+1]][j]+dists_to_center[seq[i+1]]) {
+						dists_to_center[j] = connections[seq[i+1]][j]+dists_to_center[seq[i+1]];
+						connections_aux[j] = seq[i+1];
 					}else{
 						
 					}
@@ -89,10 +108,15 @@ public class Main {
 					
 				}
 			}
+			System.out.print("F = "+arrToString(seq, true)+" | ");
+			System.out.print(arrToString(dists_to_center, false));
+			System.out.print("\n");
 		}
+		System.out.print("\n");
 
 		for(int i=0; i<l; i++) {
-			connections_new[connections_aux[i]][i] = connections[connections_aux[i]][i];
+			if(i > connections_aux[i]) connections_new[connections_aux[i]][i] = connections[connections_aux[i]][i];
+			else connections_new[i][connections_aux[i]] = connections[i][connections_aux[i]];
 		}
 
 		for(int i=0; i<l; i++) {
@@ -100,8 +124,6 @@ public class Main {
 				connections_new[j][i] = connections_new[i][j];
 			}
 		}
-
-		//System.out.println(arrToString(connections_aux, true));
 
 		return connections_new;
 	}
@@ -136,11 +158,15 @@ public class Main {
 
 	public static String intToString(int i, boolean isNode) {
 		if(i >= INF) {
-			return "-";
+			return "--";
 		}else{
-			if(isNode) return ""+(i+1);
-			else return ""+i;
-		} 
+			int n;
+			if(isNode) n = (i+1);
+			else n = i;
+
+			if(n >= 10) return ""+n;
+			else return n+" ";
+		}
 	}
 
 	public static boolean isInArray(int n, int[] arr) {

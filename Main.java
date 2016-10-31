@@ -2,7 +2,7 @@ import java.util.Scanner;
 import java.util.Arrays;
 
 public class Main {
-	public static int INF = 2000000;
+	public static int INF = 20000000;
 	public static Scanner scanner = new Scanner( System.in );
 
 	public static void main(String[] args) {
@@ -51,9 +51,11 @@ public class Main {
 			connections_new[i][i] = 0;
 		}
 
+		int[] connections_aux = new int[l];
+		int[] dists_to_center = connections[center];
+
 		int[] seq = new int[l];
 		Arrays.fill(seq, INF);
-
 		seq[0] = center;
 		//System.out.print("F = "+arrToString(seq, true)+" | ");
 
@@ -64,9 +66,9 @@ public class Main {
 			for(int j=0; j<l; j++) {
 				if(!isInArray(j, seq)) {
 					//System.out.print(intToString(connections[center][j], false) + "  ");
-					if(connections[center][j] < min_dist) {
+					if(dists_to_center[j] < min_dist) {
 						node_min_dist = j;
-						min_dist = connections[center][j];
+						min_dist = dists_to_center[j];
 					}
 				}else{
 					//System.out.print("//  ");
@@ -77,18 +79,20 @@ public class Main {
 
 			for(int j=0; j<l; j++) {
 				if(!isInArray(j, seq)) {
-					if(connections[center][j] > connections[i+1][j]+connections[center][i+1]) {
-						connections[center][j] = connections[i+1][j]+connections[center][i+1];
+					if(dists_to_center[j] > connections[i+1][j]+dists_to_center[i+1]) {
+						dists_to_center[j] = connections[i+1][j]+dists_to_center[i+1];
+						connections_aux[j] = i+1;
 					}else{
 						
 					}
 				}else{
-					//System.out.print("//  ");
+					
 				}
 			}
-			//System.out.println("F = "+arrToString(seq, true)+" | ");
+		}
 
-			//System.out.println(arrToString(connections_new[center], false));
+		for(int i=0; i<l; i++) {
+			connections_new[connections_aux[i]][i] = connections[connections_aux[i]][i];
 		}
 
 		for(int i=0; i<l; i++) {
@@ -96,6 +100,8 @@ public class Main {
 				connections_new[j][i] = connections_new[i][j];
 			}
 		}
+
+		//System.out.println(arrToString(connections_aux, true));
 
 		return connections_new;
 	}

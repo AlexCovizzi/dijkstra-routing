@@ -158,7 +158,7 @@ public class DijkstraRouting {
 
 	public static String intToString(int i, boolean isNode) {
 		if(i >= INF) {
-			return "--";
+			return "- ";
 		}else{
 			int n;
 			if(isNode) n = (i+1);
